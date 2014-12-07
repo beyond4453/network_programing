@@ -33,14 +33,6 @@ int main(int argc, char *argv[])
 	struct sockaddr_in servaddr;
 	char buf[MAXLINE];
 	int sockfd, n;
-	char *str;
-
-	if(argc != 2) 
-	{
-		fputs("usage: ./client message\n",stderr);
-		exit(1);
-	}
-
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -50,18 +42,26 @@ int main(int argc, char *argv[])
 	servaddr.sin_port = htons(SERV_PORT);
 
 	connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
+
+	printf("input you message (q to exit): ");
 	
-	str = argv[1];
-//	printf("Please say hi to the server:\n");
-//	scanf("%s",str);
-//	gets(str);
-	write(sockfd, str, strlen(str));
+	while(fgets(buf, MAXLINE, stdin) != NULL) {
+		if(buf[0] == 'q' && strlen(buf) == 2)
+        {
+            break;
+        }
+		write(sockfd, buf, strlen(buf));
 
-	n = read(sockfd, buf, MAXLINE);
-	printf("Response from server:\n");
-	write(STDOUT_FILENO, buf, n);
-	printf("\n");
-
+		n = read(sockfd, buf, MAXLINE);
+		if(n == 0)
+        {
+            printf("the connect side has been closed. please run it again\n");
+            exit(0);
+        }
+		write(STDOUT_FILENO, "Response from server : ", sizeof("Response from server : "));
+		write(STDOUT_FILENO, buf, n);
+		printf("\ninput you message (q to exit): ");
+	}
 	close(sockfd);
 	return 0;
 }

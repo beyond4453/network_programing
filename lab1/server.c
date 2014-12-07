@@ -53,14 +53,22 @@ int main(void)
 	{
 		cliaddr_len = sizeof(cliaddr);
 		connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &cliaddr_len);
+		while(1)
+		{
+			n = read(connfd, recv_buf, MAXLINE);
+			if(n == 0)
+			{
+				printf("the client has been closed , please restart again\n");
+				break;
+			}
+			printf("received from %s at PORT %d ",inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str)), ntohs(cliaddr.sin_port));
+//print the recv_buf on the terminal
+			write(STDOUT_FILENO, recv_buf, n);
+			printf("\n");
 
-		n = read(connfd, recv_buf, MAXLINE);
-		printf("received from %s at PORT %d ",inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str)), ntohs(cliaddr.sin_port));
-		printf("%.*s",n,recv_buf);
-		printf("\n");
-
-		send_buf = "hi";
-		write(connfd, send_buf, sizeof(send_buf));
+			send_buf = "hi";
+			write(connfd, send_buf, sizeof(send_buf));
+		}
 		close(connfd);
 	}
 }
