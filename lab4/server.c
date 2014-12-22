@@ -36,7 +36,7 @@ int main(void)
 	char recv_buf[MAXLINE];
 	char *send_buf;
 	char str[INET_ADDRSTRLEN];
-	int i, n;
+	int i, n, m;
 
 	listenfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -53,23 +53,37 @@ int main(void)
 	{
 		cliaddr_len = sizeof(cliaddr);
 		connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &cliaddr_len);
-		while(1)
+		m = fork();
+		if(m == -1)
 		{
-//读入的内容存入recv_buf，返回读到的字节数
-			n = read(connfd, recv_buf, MAXLINE);
-			if(n == 0)
-			{
-				printf("the client has been closed , please restart again\n");
-				break;
-			}
-			printf("received from %s at PORT %d ",inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str)), ntohs(cliaddr.sin_port));
-//print the recv_buf on the terminal
-			write(STDOUT_FILENO, recv_buf, n);
-			printf("\n");
-
-			send_buf = "hi";
-			write(connfd, send_buf, sizeof(send_buf));
+			perror("Call to fork");
+			exit(1);
 		}
-		close(connfd);
+		else if( m ==0 )
+		{
+			while(1)
+			{
+	//读入的内容存入recv_buf，返回读到的字节数
+				n = read(connfd, recv_buf, MAXLINE);
+				if(n == 0)
+				{
+					printf("the client has been closed , please restart again\n");
+					break;
+				}
+				printf("received from %s at PORT %d ",(char *)inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str)), ntohs(cliaddr.sin_port));
+	//print the recv_buf on the terminal
+				write(STDOUT_FILENO, recv_buf, n);
+				printf("\n");
+
+				send_buf = "hi";
+				write(connfd, send_buf, sizeof(send_buf));
+			}
+			close(connfd);
+			exit(0);
+		}
+		else 
+		{
+			close(connfd);
+		}
 	}
 }

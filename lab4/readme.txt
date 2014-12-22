@@ -1,8 +1,8 @@
 ﻿此程序实现了基于C/S架构的TCP服务器：
 
-1.在linux下打开一个终端，先编译服务器代码
-$ gcc server.c -o server（会有一个警告，可以忽略）
-
+1.通过makefile来生成可执行程序
+$ make clean
+$ make
 
 
 2.运行服务器
