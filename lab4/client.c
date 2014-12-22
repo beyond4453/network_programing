@@ -7,14 +7,14 @@
 /*  MODULE NAME           :  client                                                               */
 /*  LANGUAGE              :  C                                                                    */
 /*  TARGET ENVIRONMENT    :  ANY                                                                  */
-/*  DATE OF FIRST RELEASE :  2014/12/01                                                           */
+/*  DATE OF FIRST RELEASE :  2014/12/22                                                           */
 /*  DESCRIPTION           :  This is a client program                                             */
 /**************************************************************************************************/
 
 /*
  *Revision log:
  *
- *Ceated by GaoZhipeng, 2014/12/01
+ *Ceated by GaoZhipeng, 2014/12/22
  *     
  */
 
@@ -31,8 +31,9 @@
 int main(int argc, char *argv[]) 
 {
 	struct sockaddr_in servaddr;
-	char buf[MAXLINE];
+	char buf[MAXLINE] = "hello";
 	int sockfd, n;
+	int index = 0;
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -43,25 +44,20 @@ int main(int argc, char *argv[])
 
 	connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
 
-	printf("input you message (q to exit): ");
 
 	//从标准输入设备中读取字符串写入buf
-	while(fgets(buf, MAXLINE, stdin) != NULL) {
-		if(buf[0] == 'q' && strlen(buf) == 2)
-        {
-            break;
-        }
-		write(sockfd, buf, strlen(buf));
-
+	while(1) {
+		write(sockfd, "hello", sizeof("hello"));
 		n = read(sockfd, buf, MAXLINE);
 		if(n == 0)
         {
             printf("the connect side has been closed. please run it again\n");
-            exit(0);
+            continue;
         }
 		write(STDOUT_FILENO, "Response from server : ", sizeof("Response from server : "));
 		write(STDOUT_FILENO, buf, n);
-		printf("\ninput you message (q to exit): ");
+		index++;
+		printf(" %d \n", index);
 	}
 	close(sockfd);
 	return 0;

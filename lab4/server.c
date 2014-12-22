@@ -7,14 +7,14 @@
 /*  MODULE NAME           :  server                                                               */
 /*  LANGUAGE              :  C                                                                    */
 /*  TARGET ENVIRONMENT    :  ANY                                                                  */
-/*  DATE OF FIRST RELEASE :  2014/12/01                                                           */
+/*  DATE OF FIRST RELEASE :  2014/12/22                                                           */
 /*  DESCRIPTION           :  This is a server program                                             */
 /**************************************************************************************************/
 
 /*
  *Revision log:
  *
- *Ceated by GaoZhipeng, 2014/12/01
+ *Ceated by GaoZhipeng, 2014/12/22
  *     
  */
 
@@ -37,6 +37,7 @@ int main(void)
 	char *send_buf;
 	char str[INET_ADDRSTRLEN];
 	int i, n, m;
+	int index = 0;
 
 	listenfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -73,7 +74,8 @@ int main(void)
 				printf("received from %s at PORT %d ",(char *)inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str)), ntohs(cliaddr.sin_port));
 	//print the recv_buf on the terminal
 				write(STDOUT_FILENO, recv_buf, n);
-				printf("\n");
+				index++;
+				printf(" %d\n", index);
 
 				send_buf = "hi";
 				write(connfd, send_buf, sizeof(send_buf));
