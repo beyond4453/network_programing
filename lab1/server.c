@@ -61,13 +61,13 @@ int main(void)
 				printf("the client has been closed , please restart again\n");
 				break;
 			}
-			printf("received from %s at PORT %d ",inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str)), ntohs(cliaddr.sin_port));
+			printf("received from %s at PORT %d ",(char *)inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str)), ntohs(cliaddr.sin_port));
 //print the recv_buf on the terminal
 			write(STDOUT_FILENO, recv_buf, n);
 			printf("\n");
 
-			send_buf = "hi";
-			write(connfd, send_buf, sizeof(send_buf));
+			send_buf = "hi&morning";
+			write(connfd, send_buf, strlen(send_buf));
 		}
 		close(connfd);
 	}
