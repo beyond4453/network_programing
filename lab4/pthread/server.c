@@ -28,16 +28,41 @@
 #define MAXLINE 80
 #define SERV_PORT 8000
 
+int listenfd, connfd;
+struct sockaddr_in servaddr, cliaddr;
+char str[INET_ADDRSTRLEN];
+
+void Client_Thread()
+{
+	char recv_buf[MAXLINE];
+	char *send_buf = "hi";
+	int i, n;
+	int index = 0;
+	while(1)
+	{
+//读入的内容存入recv_buf，返回读到的字节数
+		n = read(connfd, recv_buf, MAXLINE);
+		if(n == 0)
+		{
+			printf("the client has been closed , please restart again\n");
+			break;
+		}
+		printf("received from %s at PORT %d ",(char *)inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str)), ntohs(cliaddr.sin_port));
+//print the recv_buf on the terminal
+		write(STDOUT_FILENO, recv_buf, n);
+		index++;
+		printf(" %d\n", index);
+		write(connfd, send_buf, strlen(send_buf));
+	}
+	close(connfd);
+	exit(0);
+}
+
+
 int main(void) 
 {
-	struct sockaddr_in servaddr, cliaddr;
 	socklen_t cliaddr_len;
-	int listenfd, connfd;
-	char recv_buf[MAXLINE];
-	char *send_buf;
-	char str[INET_ADDRSTRLEN];
-	int i, n, m;
-	int index = 0;
+	pthread_t ntid;
 
 	listenfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -53,39 +78,8 @@ int main(void)
 	while(1) 
 	{
 		cliaddr_len = sizeof(cliaddr);
-		connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &cliaddr_len);
-		m = fork();
-		if(m == -1)
-		{
-			perror("Call to fork");
-			exit(1);
-		}
-		else if( m ==0 )
-		{
-			while(1)
-			{
-	//读入的内容存入recv_buf，返回读到的字节数
-				n = read(connfd, recv_buf, MAXLINE);
-				if(n == 0)
-				{
-					printf("the client has been closed , please restart again\n");
-					break;
-				}
-				printf("received from %s at PORT %d ",(char *)inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str)), ntohs(cliaddr.sin_port));
-	//print the recv_buf on the terminal
-				write(STDOUT_FILENO, recv_buf, n);
-				index++;
-				printf(" %d\n", index);
-
-				send_buf = "hi";
-				write(connfd, send_buf, strlen(send_buf));
-			}
-			close(connfd);
-			exit(0);
-		}
-		else 
-		{
-			close(connfd);
-		}
+		connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &cliaddr_len);	
+		pthread_create(&ntid, NULL, (void *)Client_Thread, NULL);
+		ntid++;
 	}
 }
