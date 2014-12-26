@@ -24,6 +24,7 @@
 #include<unistd.h>
 #include<sys/socket.h>
 #include<netinet/in.h>
+#include<pthread.h>
 
 #define MAXLINE 80
 #define SERV_PORT 8000
@@ -31,6 +32,8 @@
 int listenfd, connfd;
 struct sockaddr_in servaddr, cliaddr;
 char str[INET_ADDRSTRLEN];
+pthread_mutex_t mutex=PTHREAD_MUTEX_INITIALIZER;
+
 
 void Client_Thread()
 {
@@ -38,6 +41,8 @@ void Client_Thread()
 	char *send_buf = "hi";
 	int i, n;
 	int index = 0;
+//为线程加锁，使其不可重入
+	pthread_mutex_lock(&mutex);
 	while(1)
 	{
 //读入的内容存入recv_buf，返回读到的字节数
@@ -55,6 +60,7 @@ void Client_Thread()
 		write(connfd, send_buf, strlen(send_buf));
 	}
 	close(connfd);
+	pthread_mutex_unlock(&mutex);
 	exit(0);
 }
 
