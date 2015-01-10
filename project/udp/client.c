@@ -80,6 +80,14 @@ int main()
 		exit(1);
 	}
 
+	long file_len;
+	if(recvfrom(client_socket_fd, &file_len, sizeof(long), 0, (struct sockaddr*)&server_addr,&server_addr_length) == -1)
+	{
+		perror("Receive Data Failed:");
+		exit(1);
+	}
+	printf("File Size: %ld\n", file_len);
+
 	/* 打开文件，准备写入 */
 	bzero(file_name, FILE_NAME_MAX_SIZE+1);
 	printf("Please input file name you want to save as: ");
@@ -91,21 +99,16 @@ int main()
 		exit(1);
 	}
 
-	long file_len;
-	if(recvfrom(client_socket_fd, &file_len, sizeof(long), 0, (struct sockaddr*)&server_addr,&server_addr_length) == -1)
-	{
-		perror("Receive Data Failed:");
-		exit(1);
-	}
-	printf("File Size: %ld\n", file_len);
 
 	/* 从服务器接收数据，并写入文件 */
 	int len = 0;
-	while(1)
+	long fw_size = 0;
+	long fw_len = 0;
+	while(fw_size < file_len)
 	{
 		PackInfo pack_info;
 
-		if((len = recvfrom(client_socket_fd, (char*)&data, sizeof(data), 0, (struct sockaddr*)&server_addr,&server_addr_length)) > 0)
+		if((len = recvfrom(client_socket_fd, (char*)&data, sizeof(data), 0, (struct sockaddr*)&server_addr,&server_addr_length)) > 0 )
 		{
 			//id是下一个期望接收数据包的head.id
 			if(data.head.id == id)
@@ -119,11 +122,16 @@ int main()
 					printf("Send confirm information failed!");
 				}
 				/* 写入文件 */
-				if(fwrite(data.buf, sizeof(char), data.head.buf_size, fp) < data.head.buf_size)
+				if((fw_len = (fwrite(data.buf, sizeof(char), data.head.buf_size, fp))) < data.head.buf_size)
 				{
 					printf("File:\t%s Write Failed\n", file_name);
 					break;
 				}
+				else {
+					fw_size += fw_len;
+					printf("%ld\n", fw_size);
+				}
+			
 			}
 			else if(data.head.id < id) /* 如果是重发的包 */
 			{
