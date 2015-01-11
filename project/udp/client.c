@@ -14,9 +14,11 @@
 #include<stdarg.h>
 #include<string.h>
 #include <fcntl.h>
+#include "dbtime.h"
+
 
 #define SERVER_PORT 8000
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 9096
 #define FILE_NAME_MAX_SIZE 512
 
 /* 包头 */
@@ -104,10 +106,14 @@ int main()
 	int len = 0;
 	long fw_size = 0;
 	long fw_len = 0;
+	
+	dbtime_startTest ("Connect & Recv");
+	PackInfo pack_info;
+
 	while(fw_size < file_len)
 	{
-		PackInfo pack_info;
-
+		
+		
 		if((len = recvfrom(client_socket_fd, (char*)&data, sizeof(data), 0, (struct sockaddr*)&server_addr,&server_addr_length)) > 0 )
 		{
 			//id是下一个期望接收数据包的head.id
@@ -127,6 +133,7 @@ int main()
 					printf("File:\t%s Write Failed\n", file_name);
 					break;
 				}
+
 				else {
 					fw_size += fw_len;
 					printf("%ld\n", fw_size);
@@ -153,6 +160,8 @@ int main()
 			break;
 		}
 	}
+	
+	dbtime_endAndShow ();
 
 	printf("Receive File:\t%s From Server IP Successful!\n", file_name);
 	fclose(fp);

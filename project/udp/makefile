@@ -1,6 +1,5 @@
 all:
 	gcc server.c -o server
-	gcc client.c -o client
+	gcc client.c dbtime.c -o client -lpthread -lrt
 clean:
-	rm server client
-
+	rm client server dbtime.time
