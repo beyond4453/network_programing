@@ -12,8 +12,8 @@
 #include<netdb.h>
 #include<stdarg.h>
 #include<string.h>
-#include <fcntl.h>
 #include "dbtime.h"
+
 
 #define SERVER_PORT 8000
 #define BUFFER_SIZE 50240
@@ -25,6 +25,13 @@ typedef struct
 	int id;
 	int buf_size;
 }PackInfo;
+
+long getlength( FILE *fp );
+int Socket(int domain, int type, int protocol);
+void Bind(int fd, const struct sockaddr *sa, socklen_t salen);
+void Get_FileName_On_Server(char buffer[]);
+ssize_t RecvFrom(int sockfd,void* buf, int len, unsigned int flags, struct sockaddr *from, socklen_t *fromlen);
+int SendTo (int sockfd , const void* msg, int len, unsigned int flags, const struct sockaddr* to, int tolen );
 
 
 #endif 

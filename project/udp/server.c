@@ -12,22 +12,6 @@ struct SendPack
 } data;
 
 
-long getlength( FILE *fp )
-{
-	long cur_pos;
-	long len;
-
-	//取得当前文件流的读取位置
-	cur_pos = ftell( fp );
-	//将文件流的读取位置设为文件末尾
-	fseek( fp, 0, SEEK_END );
-	//获取文件末尾的读取位置,即文件大小
-	len = ftell( fp );
-	//将文件流的读取位置还原为原先的值
-	fseek( fp, cur_pos, SEEK_SET );
-	return len;
-}
-
 
 int main()
 {
@@ -37,29 +21,22 @@ int main()
 	/* 接收id */
 	int receive_id = 0;
 	
-
+	/* 文件大小 */
 	long file_len;
-	/* 创建UDP套接口 */
+
 	struct sockaddr_in server_addr;
 	bzero(&server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	server_addr.sin_port = htons(SERVER_PORT);
+	
 
 	/* 创建socket */
-	int server_socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
-	if(server_socket_fd == -1)
-	{
-		perror("Create Socket Failed:");
-		exit(1);
-	}
+	int server_socket_fd = Socket(AF_INET, SOCK_DGRAM, 0);
 
 	/* 绑定套接口 */
-	if(-1 == (bind(server_socket_fd,(struct sockaddr*)&server_addr,sizeof(server_addr))))
-	{
-		perror("Server Bind Failed:");
-		exit(1);
-	}
+	Bind(server_socket_fd,(struct sockaddr*)&server_addr,sizeof(server_addr));
+
 
 	/* 数据传输 */
 	while(1)
@@ -68,14 +45,10 @@ int main()
 		struct sockaddr_in client_addr;
 		socklen_t client_addr_length = sizeof(client_addr);
 
-		/* 接收数据 */
+		/* 接收文件名 */
 		char buffer[BUFFER_SIZE];
 		bzero(buffer, BUFFER_SIZE);
-		if(recvfrom(server_socket_fd, buffer, BUFFER_SIZE,0,(struct sockaddr*)&client_addr, &client_addr_length) == -1)
-		{
-			perror("Receive Data Failed:");
-			exit(1);
-		}
+		RecvFrom(server_socket_fd, buffer, BUFFER_SIZE,0,(struct sockaddr*)&client_addr, &client_addr_length);
 
 		/* 从buffer中拷贝出file_name */
 		char file_name[FILE_NAME_MAX_SIZE+1];
