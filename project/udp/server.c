@@ -2,28 +2,7 @@
   > File Name: server.c
   > Author: SongLee
  ************************************************************************/
-#include<sys/types.h>
-#include<sys/socket.h>
-#include<unistd.h>
-#include<netinet/in.h>
-#include<arpa/inet.h>
-#include<stdio.h>
-#include<stdlib.h>
-#include<errno.h>
-#include<netdb.h>
-#include<stdarg.h>
-#include<string.h>
-
-#define SERVER_PORT 8000
-#define BUFFER_SIZE 1024
-#define FILE_NAME_MAX_SIZE 512
-
-/* 包头 */
-typedef struct
-{
-	int id;
-	int buf_size;
-}PackInfo;
+#include"wrap.h"
 
 /* 接收包 */
 struct SendPack
@@ -31,6 +10,7 @@ struct SendPack
 	PackInfo head;
 	char buf[BUFFER_SIZE];
 } data;
+
 
 long getlength( FILE *fp )
 {
